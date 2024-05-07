@@ -1,0 +1,104 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(236, 4, 4, 0.1);
+}
+
+h1 {
+    text-align: center;
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.chart-container {
+    width: 48%;
+    margin-bottom: 20px;
+}
+
+.table-container {
+    width: 48%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.btn-download {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+}
+
+/* Styles for the gas availability widget */
+.widget-container {
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.widget-container h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.gas-status {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Styles for different gas availability status */
+.gas-status.available {
+    color: green;
+    background-color: #eaffea; /* Light green background */
+}
+
+.gas-status.not-available {
+    color: red;
+    background-color: #ffe6e6; /* Light red background */
+}
