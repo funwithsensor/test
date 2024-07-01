@@ -3,64 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
+    <title>Real Time Data Monitoring System</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
         }
-
-        .welcome-container {
-            max-width: 600px;
-            margin: 100px auto;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        .header {
+            background-color: #333;
+            color: #fff;
             text-align: center;
+            padding: 20px;
+            font-size: 1.5em;
         }
-
-        .welcome-container h1 {
-            color: #333;
-            font-size: 36px;
-            margin-bottom: 20px;
+        .container {
+            display: flex;
+            height: calc(100vh - 80px);
         }
-
-        .welcome-container p {
-            color: #666;
-            font-size: 18px;
-            margin-bottom: 30px;
+        .left, .right {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
         }
-
-        .start-button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
+        .left {
+            background-color: #3498db;
+            overflow-y: auto;
+        }
+        .right {
+            background-color: #8a8584;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+        }
+        .chart-container {
+            background-color: #fff;
+            padding: 10px;
             border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
         }
-
-        .start-button:hover {
-            background-color: #45a049;
+        .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 0.9em;
+        }
+        .latest-value-table, .thingspeak-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .latest-value-table th, .latest-value-table td, .thingspeak-table th, .thingspeak-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .latest-value-table th, .thingspeak-table th {
+            background-color: #333;
+            color: #fff;
+        }
+        .thingspeak-table td {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+        .download-button {
+            background-color: #f39c12;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 0;
         }
     </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <div class="welcome-container">
-        <h1>Welcome to Real-Time Data Monitoring System</h1>
-        <p> </p>
-        <button class="start-button" onclick="startMonitoring()">Start Monitoring</button>
+    <div class="header">
+        Real Time Data Monitoring System
     </div>
+    <div class="container">
+        <div class="left">
+            <h2>Latest Values</h2>
+            <table class="latest-value-table">
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Timestamp</td>
+                    <td id="timestamp-value"></td>
+                </tr>
+                <tr>
+                    <td>DHT Temperature (°C)</td>
+                    <td id="dht-temp-value"></td>
+                </tr>
+                <tr>
+                    <td>DHT Humidity (%)</td>
+                    <td id="dht-humidity-value"></td>
+                </tr>
+                <tr>
+                    <td>BMP Temperature (°C)</td>
+                    <td id="bmp-temp-value"></td>
+                </tr>
+                <tr>
+                    <td>BMP Pressure (hPa)</td>
+                    <td id="bmp-pressure-value"></td>
+                </tr>
+                <tr>
+                    <td>Methane Availability</td>
+                    <td id="methane-value"></td>
+                </tr>
+            </table>
+            <h2>ThingSpeak Data</h2>
+            <button class="download-button" onclick="downloadCSV()">Download Data</button>
+            <table class="thingspeak-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>DHT Temperature (°C)</th>
+                        <th>DHT Humidity (%)</th>
+                        <th>BMP Temperature (°C)</th>
+                        <th>BMP Pressure (hPa)</th>
+                        <th>Methane Availability</th>
+                    </tr>
+                </thead>
+                <tbody id="data-body">
+                    <!-- Data will be inserted here dynamically -->
+                </tbody>
+            </table>
+        </div>
+        <div class="right">
+            <div class="chart-container">
+                <h2>BMP Temperature over Time</h2>
+                <div id="bmp-temp-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+            <div class="chart-container">
+                <h2>BMP Pressure over Time</h2>
+                <div id="bmp-pressure-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+            <div class="chart-container">
+                <h2>DHT Temperature over Time</h2>
+                <div id="dht-temp-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+            <div class="chart-container">
+                <h2>DHT Humidity over Time</h2>
+                <div id="dht-humidity-chart" style="width: 100%; height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        Ankit Bara, 23061001, ankitbara.rs.civ23@itbhu.ac.in, IIT(BHU)
+    </div>
+
     <script>
-        function startMonitoring() {
-            window.location.href = "main.html"; // Redirect to the main page
+        // Variables to hold timestamps and sensor values
+        let timestamps = [];
+        let dhtTemps = [];
+        let dhtHumidities = [];
+        let bmpTemps = [];
+        let bmpPressures = [];
+
+        // Function to update charts
+        function updateCharts(data) {
+            timestamps = [];
+            dhtTemps = [];
+            dhtHumidities = [];
+            bmpTemps = [];
+            bmpPressures = [];
+
+            data.feeds.forEach(feed => {
+                timestamps.push(new Date(feed.created_at).toLocaleString());
+                dhtTemps.push(feed.field1);
+                dhtHumidities.push(feed.field2);
+                bmpTemps.push(feed.field3);
+                bmpPressures.push(feed.field4);
+            });
+
+            Plotly.newPlot('bmp-temp-chart', [{
+                x: timestamps,
+                y: bmpTemps,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'BMP Temperature'
+            }], { title: 'BMP Temperature over Time', xaxis: { title: 'Timestamp' }, yaxis: { title: 'BMP Temperature (°C)' } });
+
+            Plotly.newPlot('bmp-pressure-chart', [{
+                x: timestamps,
+                y: bmpPressures,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'BMP Pressure'
+            }], { title: 'BMP Pressure over Time', xaxis: { title: 'Timestamp' }, yaxis: { title: 'BMP Pressure (hPa)' } });
+
+            Plotly.newPlot('dht-temp-chart', [{
+                x: timestamps,
+                y: dhtTemps,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'DHT Temperature'
+            }], { title: 'DHT Temperature over Time', xaxis: { title: 'Timestamp' }, yaxis: { title: 'DHT Temperature (°C)' } });
+
+            Plotly.newPlot('dht-humidity-chart', [{
+                x: timestamps,
+                y: dhtHumidities,
+                mode: 'lines+markers',
+                type: 'scatter',
+                name: 'DHT Humidity'
+            }], { title: 'DHT Humidity over Time', xaxis: { title: 'Timestamp' }, yaxis: { title: 'DHT Humidity (%)' } });
         }
+
+        // Function to fetch ThingSpeak data
+        function fetchData() {
+            return fetch('https://api.thingspeak.com/channels/2577919/feeds.json?api_key=9ZCTERWR08W1TNIK')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    updateLatestValues(data.feeds);
+                    updateCharts(data);
+                    populateDataTable(data.feeds);
+                    return data;
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Function to update the latest values table
+        function updateLatestValues(feeds) {
+            const latestFeed = feeds[feeds.length - 1];
+            document.getElementById('timestamp-value').textContent = new Date(latestFeed.created_at).toLocaleString();
+            document.getElementById('dht-temp-value').textContent = latestFeed.field1;
+            document.getElementById('dht-humidity-value').textContent = latestFeed.field2;
+            document.getElementById('bmp-temp-value').textContent = latestFeed.field3;
+            document.getElementById('bmp-pressure-value').textContent = latestFeed.field4;
+            document.getElementById('methane-value').textContent = latestFeed.field5 === 'Gas Detected' ? '1' : '0';
+        }
+
+        // Function to populate the ThingSpeak data table
+        function populateDataTable(feeds) {
+            const tableBody = document.getElementById('data-body');
+            tableBody.innerHTML = '';
+            feeds.forEach(feed => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(feed.created_at).toLocaleString()}</td>
+                    <td>${feed.field1}</td>
+                    <td>${feed.field2}</td>
+                    <td>${feed.field3}</td>
+                    <td>${feed.field4}</td>
+                    <td>${feed.field5}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Function to download CSV
+        function downloadCSV() {
+            let csvContent = 'Timestamp,DHT Temperature (°C),DHT Humidity (%),BMP Temperature (°C),BMP Pressure (hPa),Methane Availability\n';
+            timestamps.forEach((timestamp, index) => {
+                csvContent += `${timestamp},${dhtTemps[index]},${dhtHumidities[index]},${bmpTemps[index]},${bmpPressures[index]},${index % 2 ? '0' : '1'}\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sensor_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Fetch data every 15 seconds
+        setInterval(fetchData, 15000);
+        // Fetch data initially
+        fetchData();
     </script>
 </body>
 </html>
